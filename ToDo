@@ -1,0 +1,9 @@
+[ ] settings.py ni tozalash va .env qo‘shish
+[ ] requirements.txt yaratish
+[ ] Git init va .gitignore sozlash
+[ ] PostgreSQL ulash
+[ ] Model va migratsiyalar qilish
+[ ] Admin panel sozlash
+[ ] API endpointlar yozish
+[ ] DRF Serializer va Viewlar qo‘shish
+[ ] Test yozish
