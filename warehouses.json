@@ -1,0 +1,242 @@
+[
+{
+  "model": "warehouse.warehouse",
+  "pk": 1,
+  "fields": {
+    "name": "Central Warehouse",
+    "location": "Tashkent",
+    "type": "regional",
+    "capacity": "1000.00",
+    "created_at": "2025-08-20T10:30:08.657Z",
+    "updated_at": "2025-08-20T10:30:08.657Z"
+  }
+},
+{
+  "model": "warehouse.warehouse",
+  "pk": 2,
+  "fields": {
+    "name": "Samarkand Storage",
+    "location": "Samarkand",
+    "type": "regional",
+    "capacity": "800.00",
+    "created_at": "2025-08-20T10:30:08.690Z",
+    "updated_at": "2025-08-20T10:30:08.690Z"
+  }
+},
+{
+  "model": "warehouse.warehouse",
+  "pk": 3,
+  "fields": {
+    "name": "Bukhara Depot",
+    "location": "Bukhara",
+    "type": "regional",
+    "capacity": "600.00",
+    "created_at": "2025-08-20T10:30:08.694Z",
+    "updated_at": "2025-08-20T10:30:08.694Z"
+  }
+},
+{
+  "model": "warehouse.warehouse",
+  "pk": 4,
+  "fields": {
+    "name": "Andijan Facility",
+    "location": "Andijan",
+    "type": "regional",
+    "capacity": "750.00",
+    "created_at": "2025-08-20T10:30:08.698Z",
+    "updated_at": "2025-08-20T10:30:08.698Z"
+  }
+},
+{
+  "model": "warehouse.warehouse",
+  "pk": 5,
+  "fields": {
+    "name": "Namangan Hub",
+    "location": "Namangan",
+    "type": "regional",
+    "capacity": "500.00",
+    "created_at": "2025-08-20T10:30:08.702Z",
+    "updated_at": "2025-08-20T10:30:08.702Z"
+  }
+},
+{
+  "model": "warehouse.warehouse",
+  "pk": 6,
+  "fields": {
+    "name": "Fergana Warehouse",
+    "location": "Fergana",
+    "type": "regional",
+    "capacity": "900.00",
+    "created_at": "2025-08-20T10:30:08.705Z",
+    "updated_at": "2025-08-20T10:30:08.705Z"
+  }
+},
+{
+  "model": "warehouse.warehouse",
+  "pk": 7,
+  "fields": {
+    "name": "Khiva Storage",
+    "location": "Khiva",
+    "type": "regional",
+    "capacity": "400.00",
+    "created_at": "2025-08-20T10:30:08.709Z",
+    "updated_at": "2025-08-20T10:30:08.709Z"
+  }
+},
+{
+  "model": "warehouse.warehouse",
+  "pk": 8,
+  "fields": {
+    "name": "Nukus Facility",
+    "location": "Nukus",
+    "type": "regional",
+    "capacity": "700.00",
+    "created_at": "2025-08-20T10:30:08.713Z",
+    "updated_at": "2025-08-20T10:30:08.713Z"
+  }
+},
+{
+  "model": "warehouse.warehouse",
+  "pk": 9,
+  "fields": {
+    "name": "Jizzakh Depot",
+    "location": "Jizzakh",
+    "type": "regional",
+    "capacity": "650.00",
+    "created_at": "2025-08-20T10:30:08.717Z",
+    "updated_at": "2025-08-20T10:30:08.717Z"
+  }
+},
+{
+  "model": "warehouse.warehouse",
+  "pk": 10,
+  "fields": {
+    "name": "Sirdarya Warehouse",
+    "location": "Sirdarya",
+    "type": "regional",
+    "capacity": "550.00",
+    "created_at": "2025-08-20T10:30:08.721Z",
+    "updated_at": "2025-08-20T10:30:08.721Z"
+  }
+},
+{
+  "model": "warehouse.warehouse",
+  "pk": 11,
+  "fields": {
+    "name": "Qashqadaryo Hub",
+    "location": "Qarshi",
+    "type": "regional",
+    "capacity": "720.00",
+    "created_at": "2025-08-20T10:30:08.724Z",
+    "updated_at": "2025-08-20T10:30:08.724Z"
+  }
+},
+{
+  "model": "warehouse.warehouse",
+  "pk": 12,
+  "fields": {
+    "name": "Surxondaryo Depot",
+    "location": "Termez",
+    "type": "regional",
+    "capacity": "670.00",
+    "created_at": "2025-08-20T10:30:08.728Z",
+    "updated_at": "2025-08-20T10:30:08.728Z"
+  }
+},
+{
+  "model": "warehouse.warehouse",
+  "pk": 13,
+  "fields": {
+    "name": "Navoi Storage",
+    "location": "Navoi",
+    "type": "regional",
+    "capacity": "580.00",
+    "created_at": "2025-08-20T10:30:08.732Z",
+    "updated_at": "2025-08-20T10:30:08.732Z"
+  }
+},
+{
+  "model": "warehouse.warehouse",
+  "pk": 14,
+  "fields": {
+    "name": "Kokand Facility",
+    "location": "Kokand",
+    "type": "regional",
+    "capacity": "810.00",
+    "created_at": "2025-08-20T10:30:08.736Z",
+    "updated_at": "2025-08-20T10:30:08.736Z"
+  }
+},
+{
+  "model": "warehouse.warehouse",
+  "pk": 15,
+  "fields": {
+    "name": "Angren Warehouse",
+    "location": "Angren",
+    "type": "regional",
+    "capacity": "460.00",
+    "created_at": "2025-08-20T10:30:08.739Z",
+    "updated_at": "2025-08-20T10:30:08.739Z"
+  }
+},
+{
+  "model": "warehouse.warehouse",
+  "pk": 16,
+  "fields": {
+    "name": "Bekabad Hub",
+    "location": "Bekabad",
+    "type": "regional",
+    "capacity": "390.00",
+    "created_at": "2025-08-20T10:30:08.743Z",
+    "updated_at": "2025-08-20T10:30:08.743Z"
+  }
+},
+{
+  "model": "warehouse.warehouse",
+  "pk": 17,
+  "fields": {
+    "name": "Chirchik Depot",
+    "location": "Chirchik",
+    "type": "regional",
+    "capacity": "530.00",
+    "created_at": "2025-08-20T10:30:08.746Z",
+    "updated_at": "2025-08-20T10:30:08.746Z"
+  }
+},
+{
+  "model": "warehouse.warehouse",
+  "pk": 18,
+  "fields": {
+    "name": "Olmaliq Facility",
+    "location": "Olmaliq",
+    "type": "regional",
+    "capacity": "610.00",
+    "created_at": "2025-08-20T10:30:08.749Z",
+    "updated_at": "2025-08-20T10:30:08.750Z"
+  }
+},
+{
+  "model": "warehouse.warehouse",
+  "pk": 19,
+  "fields": {
+    "name": "Yangiyul Storage",
+    "location": "Yangiyul",
+    "type": "regional",
+    "capacity": "420.00",
+    "created_at": "2025-08-20T10:30:08.753Z",
+    "updated_at": "2025-08-20T10:30:08.753Z"
+  }
+},
+{
+  "model": "warehouse.warehouse",
+  "pk": 20,
+  "fields": {
+    "name": "Tashkent South Hub",
+    "location": "Tashkent",
+    "type": "regional",
+    "capacity": "950.00",
+    "created_at": "2025-08-20T10:30:08.757Z",
+    "updated_at": "2025-08-20T10:30:08.757Z"
+  }
+}
+]
