@@ -64,3 +64,14 @@ class OrderItemSerializer(serializers.ModelSerializer):
 #     class Meta:
 #         model = Order
 #         fields = ["id", "customer", "warehouse", "status", "order_date", "items"]
+
+class StockReportSerializer(serializers.Serializer):
+    barcode = serializers.CharField()
+    name = serializers.CharField()
+    unit = serializers.CharField()
+    inbound_qty = serializers.DecimalField(max_digits=12, decimal_places=2)
+    inbound_val = serializers.DecimalField(max_digits=15, decimal_places=2)
+    outbound_qty = serializers.DecimalField(max_digits=12, decimal_places=2)
+    outbound_val = serializers.DecimalField(max_digits=15, decimal_places=2)
+    balance_qty = serializers.DecimalField(max_digits=12, decimal_places=2)
+    balance_val = serializers.DecimalField(max_digits=15, decimal_places=2)

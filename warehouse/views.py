@@ -2,89 +2,82 @@ from django.db.models import Sum
 from rest_framework import generics
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from .models import Delivery, Category
-from .models import Warehouse, StockMovement
+from .models import Category, Product, StockMovement, Delivery, Warehouse
 from .serializer import WarehouseSerializer
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from django.db.models import Sum
+from .models import Category, Product, StockMovement
+
+
+class StockReportAPIView(APIView):
+    """
+    Общий отчет по оставшимся товарам
+    """
+
+    def get(self, request):
+        start_date = request.query_params.get("start_date")
+        end_date = request.query_params.get("end_date")
+
+        queryset = StockMovement.objects.select_related("product__category", "product__unit")
+
+        if start_date and end_date:
+            queryset = queryset.filter(created_at__date__range=[start_date, end_date])
+
+        data = []
+        categories = Category.objects.all()
+
+        for category in categories:
+            products = Product.objects.filter(category=category)
+
+            if products.exists():
+                items = []
+                for i, product in enumerate(products, start=1):
+                    prod_movements = queryset.filter(product=product)
+
+                    inbound = prod_movements.filter(movement_type="inbound") \
+                        .aggregate(qty=Sum("quantity"), val=Sum("total_value"))
+                    outbound = prod_movements.filter(movement_type="outbound") \
+                        .aggregate(qty=Sum("quantity"), val=Sum("total_value"))
+                    return_mov = prod_movements.filter(movement_type="return") \
+                        .aggregate(qty=Sum("quantity"), val=Sum("total_value"))
+
+                    inbound_qty = inbound["qty"] or 0
+                    inbound_val = inbound["val"] or 0
+                    outbound_qty = outbound["qty"] or 0
+                    outbound_val = outbound["val"] or 0
+                    return_qty = return_mov["qty"] or 0
+                    return_val = return_mov["val"] or 0
+
+                    balance_qty = inbound_qty - outbound_qty + return_qty
+                    balance_val = inbound_val - outbound_val + return_val
+
+                    items.append({
+                        "№": i,
+                        "Штрих-код": product.barcode,
+                        "Название товара": product.name,
+                        "Единица измерения": product.unit.abbreviation if product.unit else "",
+                        "Добавлено за год (кол-во)": float(inbound_qty),
+                        "Добавлено за год (сумма)": float(inbound_val),
+                        "Выдано со склада (кол-во)": float(outbound_qty),
+                        "Выдано со склада (сумма)": float(outbound_val),
+                        "Возврат (кол-во)": float(return_qty),
+                        "Возврат (сумма)": float(return_val),
+                        "Остаток на складе (кол-во)": float(balance_qty),
+                        "Остаток на складе (сумма)": float(balance_val),
+                    })
+
+                data.append({
+                    "Категория": category.name,
+                    "items": items
+                })
+
+        return Response(data)
 
 
 class WarehouseListView(generics.ListAPIView):
     queryset = Warehouse.objects.all()
     serializer_class = WarehouseSerializer
-
-
-
-# class DashboardView(generics.RetrieveAPIView):
-#     def get(self, request, warehouse_id):
-#         warehouse = Warehouse.objects.get(id=warehouse_id)
-#
-#         in_transit = StockMovement.objects.filter(
-#             warehouse=warehouse, movement_type="inbound"
-#         ).aggregate(
-#             qty=Sum("quantity"), value=Sum("total_value")
-#         )
-#
-#         delivered = StockMovement.objects.filter(
-#             warehouse=warehouse, movement_type="outbound"
-#         ).aggregate(
-#             qty=Sum("quantity"), value=Sum("total_value")
-#         )
-#
-#         in_stock = StockMovement.objects.filter(
-#             warehouse=warehouse
-#         ).aggregate(
-#             qty=Sum("quantity"), value=Sum("total_value")
-#         )
-#
-#         return Response({
-#             "warehouse": warehouse.name,
-#             "in_transit": {"quantity": in_transit["qty"] or 0, "value": in_transit["value"] or 0},
-#             "delivered": {"quantity": delivered["qty"] or 0, "value": delivered["value"] or 0},
-#             "in_stock": {
-#                 "quantity": in_stock["qty"] or 0,
-#                 "returned": 20000,   # agar return system qo‘shilgan bo‘lsa, alohida hisoblanadi
-#                 "value": in_stock["value"] or 0
-#             }
-#         })
-
-
-# class ShipmentReportView(generics.ListAPIView):
-#     def get(self, request):
-#         warehouse_id = request.query_params.get("warehouse_id")
-#         date_from = request.query_params.get("date_from")
-#         date_to = request.query_params.get("date_to")
-#
-#         warehouse = Warehouse.objects.get(id=warehouse_id)
-#         categories = Category.objects.all()
-#
-#         data = []
-#         for cat in categories:
-#             products = Product.objects.filter(category=cat)
-#             product_data = []
-#             for p in products:
-#                 movements = StockMovement.objects.filter(
-#                     product=p, warehouse=warehouse,
-#                     movement_type="outbound",
-#                     created_at__date__range=[date_from, date_to]
-#                 ).aggregate(
-#                     qty=Sum("quantity"), value=Sum("total_value")
-#                 )
-#                 if movements["qty"]:
-#                     product_data.append({
-#                         "product": p.name,
-#                         "unit": p.unit.abbreviation,
-#                         "shipped_qty": movements["qty"],
-#                         "shipped_value": movements["value"]
-#                     })
-#
-#             if product_data:
-#                 data.append({"name": cat.name, "products": product_data})
-#
-#         return Response({
-#             "warehouse": warehouse.name,
-#             "date_from": date_from,
-#             "date_to": date_to,
-#             "categories": data
-#         })
 
 
 class ReportAPIView(APIView):
