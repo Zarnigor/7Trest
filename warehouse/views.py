@@ -1,13 +1,12 @@
 from django.db.models import Sum
 from rest_framework import generics
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from .models import Category, Product, StockMovement, Delivery, Warehouse
-from .serializer import WarehouseSerializer
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from django.db.models import Sum
+
 from .models import Category, Product, StockMovement
+from .models import Delivery, Warehouse
+from .serializer import WarehouseSerializer, DashboardReportSerializer
 
 
 class StockReportAPIView(APIView):
@@ -122,3 +121,64 @@ class ReportAPIView(APIView):
                 })
 
         return Response(data)
+
+
+
+class DashboardReportView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        warehouse_id = request.query_params.get("warehouse_id")
+
+        # Filter faqat bir ombor bo‘yicha
+        delivery_filter = {}
+        stock_filter = {}
+        if warehouse_id:
+            delivery_filter["warehouse_id"] = warehouse_id
+            stock_filter["warehouse_id"] = warehouse_id
+
+        # В пути
+        v_puti_qs = Delivery.objects.filter(status="pending", **delivery_filter)
+        v_puti_summa = v_puti_qs.aggregate(Sum("total_price"))["total_price__sum"] or 0
+
+        # Доставлен
+        dostavlen_qs = Delivery.objects.filter(status="completed", **delivery_filter)
+        dostavlen_summa = dostavlen_qs.aggregate(Sum("total_price"))["total_price__sum"] or 0
+
+        # На складе
+        inbound = StockMovement.objects.filter(movement_type="inbound", **stock_filter).aggregate(
+            qty=Sum("quantity"), val=Sum("total_value")
+        )
+        outbound = StockMovement.objects.filter(movement_type="outbound", **stock_filter).aggregate(
+            qty=Sum("quantity"), val=Sum("total_value")
+        )
+        returned = StockMovement.objects.filter(movement_type="return", **stock_filter).aggregate(
+            qty=Sum("quantity")
+        )
+
+        kolichestvo = (inbound["qty"] or 0) - (outbound["qty"] or 0)
+        tsena = (inbound["val"] or 0) - (outbound["val"] or 0)
+        vernulsya = returned["qty"] or 0
+
+        data = {
+            "v_puti": {
+                "summa": v_puti_summa,
+                "kg": 0,
+                "ltr": 0,
+                "metr": 0,
+            },
+            "dostavlen": {
+                "summa": dostavlen_summa,
+                "kg": 0,
+                "ltr": 0,
+                "metr": 0,
+            },
+            "na_sklade": {
+                "kolichestvo": kolichestvo,
+                "vernulsya": vernulsya,
+                "tsena": tsena,
+            }
+        }
+
+        serializer = DashboardReportSerializer(data)
+        return Response(serializer.data)

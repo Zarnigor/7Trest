@@ -75,3 +75,32 @@ class StockReportSerializer(serializers.Serializer):
     outbound_val = serializers.DecimalField(max_digits=15, decimal_places=2)
     balance_qty = serializers.DecimalField(max_digits=12, decimal_places=2)
     balance_val = serializers.DecimalField(max_digits=15, decimal_places=2)
+
+
+from rest_framework import serializers
+
+
+class VPutyReportSerializer(serializers.Serializer):
+    summa = serializers.DecimalField(max_digits=15, decimal_places=2)
+    kg = serializers.DecimalField(max_digits=15, decimal_places=2)
+    ltr = serializers.DecimalField(max_digits=15, decimal_places=2)
+    metr = serializers.DecimalField(max_digits=15, decimal_places=2)
+
+
+class DostavlenReportSerializer(serializers.Serializer):
+    summa = serializers.DecimalField(max_digits=15, decimal_places=2)
+    kg = serializers.DecimalField(max_digits=15, decimal_places=2)
+    ltr = serializers.DecimalField(max_digits=15, decimal_places=2)
+    metr = serializers.DecimalField(max_digits=15, decimal_places=2)
+
+
+class NaSkladeReportSerializer(serializers.Serializer):
+    kolichestvo = serializers.DecimalField(max_digits=15, decimal_places=2)
+    vernulsya = serializers.DecimalField(max_digits=15, decimal_places=2)
+    tsena = serializers.DecimalField(max_digits=15, decimal_places=2)
+
+
+class DashboardReportSerializer(serializers.Serializer):
+    v_puti = VPutyReportSerializer()
+    dostavlen = DostavlenReportSerializer()
+    na_sklade = NaSkladeReportSerializer()
