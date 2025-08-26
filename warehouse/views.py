@@ -74,13 +74,6 @@ class StockReportAPIView(APIView):
         return Response(data)
 
 
-class WarehouseListView(generics.ListAPIView):
-    queryset = Warehouse.objects.all()
-    serializer_class = WarehouseSerializer
-
-
-
-
 class ReportAPIView(APIView):
     def get(self, request):
         start_date = request.query_params.get("start_date")
@@ -201,4 +194,25 @@ class UserListCreateView(generics.ListCreateAPIView):
 class UserDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
+    permission_classes = [IsAuthenticated]
+
+
+class WarehouseListCreateView(generics.ListCreateAPIView):
+    """
+    GET /warehouses/  -> ro'yxat
+    POST /warehouses/ -> yaratish
+    """
+    queryset = Warehouse.objects.all().order_by("name")
+    serializer_class = WarehouseSerializer
+    permission_classes = [IsAuthenticated]
+
+
+class WarehouseDetailView(generics.RetrieveUpdateDestroyAPIView):
+    """
+    GET /warehouses/<id>/      -> bitta ombor
+    PUT/PATCH /warehouses/<id>/-> yangilash
+    DELETE /warehouses/<id>/   -> o'chirish
+    """
+    queryset = Warehouse.objects.all()
+    serializer_class = WarehouseSerializer
     permission_classes = [IsAuthenticated]
