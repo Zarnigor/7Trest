@@ -104,3 +104,39 @@ class DashboardReportSerializer(serializers.Serializer):
     v_puti = VPutyReportSerializer()
     dostavlen = DostavlenReportSerializer()
     na_sklade = NaSkladeReportSerializer()
+
+from rest_framework import serializers
+from .models import User, Role, Warehouse, UserWarehouse
+
+
+class RoleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Role
+        fields = ["id", "name", "description"]
+
+
+class UserSerializer(serializers.ModelSerializer):
+    role = RoleSerializer(read_only=True)
+    role_id = serializers.PrimaryKeyRelatedField(
+        queryset=Role.objects.all(), source="role", write_only=True
+    )
+    warehouses = serializers.PrimaryKeyRelatedField(
+        queryset=Warehouse.objects.all(), many=True, write_only=True
+    )
+    warehouse_list = WarehouseSerializer(source="userwarehouse_set", many=True, read_only=True)
+
+    class Meta:
+        model = User
+        fields = [
+            "id", "full_name", "email", "phone", "password_hash",
+            "role", "role_id", "warehouses", "warehouse_list",
+            "is_active", "created_at"
+        ]
+        extra_kwargs = {"password_hash": {"write_only": True}}
+
+    def create(self, validated_data):
+        warehouses = validated_data.pop("warehouses", [])
+        user = User.objects.create(**validated_data)
+        for wh in warehouses:
+            UserWarehouse.objects.create(user=user, warehouse=wh)
+        return user

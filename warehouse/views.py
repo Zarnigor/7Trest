@@ -3,10 +3,10 @@ from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
-
 from .models import Category, Product, StockMovement
-from .models import Delivery, Warehouse
-from .serializer import WarehouseSerializer, DashboardReportSerializer
+from .models import Delivery
+from .models import User, Role, Warehouse
+from .serializer import DashboardReportSerializer, UserSerializer, WarehouseSerializer, RoleSerializer
 
 
 class StockReportAPIView(APIView):
@@ -77,6 +77,8 @@ class StockReportAPIView(APIView):
 class WarehouseListView(generics.ListAPIView):
     queryset = Warehouse.objects.all()
     serializer_class = WarehouseSerializer
+
+
 
 
 class ReportAPIView(APIView):
@@ -182,3 +184,21 @@ class DashboardReportView(APIView):
 
         serializer = DashboardReportSerializer(data)
         return Response(serializer.data)
+
+
+class RoleListView(generics.ListAPIView):
+    queryset = Role.objects.all()
+    serializer_class = RoleSerializer
+    permission_classes = [IsAuthenticated]
+
+
+class UserListCreateView(generics.ListCreateAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    permission_classes = [IsAuthenticated]
+
+
+class UserDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    permission_classes = [IsAuthenticated]
