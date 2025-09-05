@@ -1,5 +1,6 @@
 from django.db import models
 import uuid
+from django.contrib.auth.hashers import make_password, check_password
 
 # ========================
 # Users & Roles
@@ -26,6 +27,14 @@ class User(models.Model):
     def __str__(self):
         return self.full_name
 
+    def set_pin(self, raw_pin: str):
+        self.pin_code_hash = make_password(raw_pin)
+        self.save(update_fields=["pin_code_hash"])
+
+    def check_pin(self, raw_pin: str) -> bool:
+        if not self.pin_code_hash:
+            return False
+        return check_password(raw_pin, self.pin_code_hash)
 
 class Warehouse(models.Model):
     WAREHOUSE_TYPES = [

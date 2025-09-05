@@ -140,3 +140,25 @@ class UserSerializer(serializers.ModelSerializer):
         for wh in warehouses:
             UserWarehouse.objects.create(user=user, warehouse=wh)
         return user
+
+from rest_framework import serializers
+from .models import User
+
+class PinLoginSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    pin = serializers.CharField(min_length=4, max_length=6)
+
+    def validate(self, attrs):
+        email = attrs.get("email")
+        pin = attrs.get("pin")
+
+        try:
+            user = User.objects.get(email=email, is_active=True)
+        except User.DoesNotExist:
+            raise serializers.ValidationError("User not found.")
+
+        if not user.check_pin(pin):
+            raise serializers.ValidationError("Invalid PIN.")
+
+        attrs["user"] = user
+        return attrs

@@ -2,7 +2,7 @@ from django.urls import path
 from .views import (
     WarehouseListCreateView, WarehouseDetailView,
     ReportAPIView, StockReportAPIView, DashboardReportView,
-    RoleListView, UserListCreateView, UserDetailView
+    RoleListView, UserListCreateView, UserDetailView, PinLoginView
 )
 
 urlpatterns = [
@@ -19,4 +19,5 @@ urlpatterns = [
     path("roles/", RoleListView.as_view(), name="role-list"),
     path("users/", UserListCreateView.as_view(), name="user-list-create"),
     path("users/<uuid:pk>/", UserDetailView.as_view(), name="user-detail"),
+    path("auth/pin-login/", PinLoginView.as_view(), name="pin-login"),
 ]

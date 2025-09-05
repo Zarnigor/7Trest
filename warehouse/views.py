@@ -1,12 +1,13 @@
 from django.db.models import Sum
-from rest_framework import generics
+from rest_framework import generics, status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework_simplejwt.tokens import RefreshToken
 from .models import Category, Product, StockMovement
-from .models import Delivery
-from .models import User, Role, Warehouse
-from .serializer import DashboardReportSerializer, UserSerializer, WarehouseSerializer, RoleSerializer
+from .models import Delivery, User, Role, Warehouse
+from .serializer import DashboardReportSerializer, UserSerializer, WarehouseSerializer, RoleSerializer, \
+    PinLoginSerializer
 
 
 class StockReportAPIView(APIView):
@@ -216,3 +217,21 @@ class WarehouseDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Warehouse.objects.all()
     serializer_class = WarehouseSerializer
     permission_classes = [IsAuthenticated]
+
+
+
+class PinLoginView(APIView):
+    def post(self, request):
+        serializer = PinLoginSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        user = serializer.validated_data["user"]
+
+        # JWT token yaratish
+        refresh = RefreshToken.for_user(user)
+        return Response({
+            "refresh": str(refresh),
+            "access": str(refresh.access_token),
+            "user_id": str(user.id),
+            "full_name": user.full_name
+            }, status=status.HTTP_200_OK)
