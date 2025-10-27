@@ -4,11 +4,17 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
-from .models import Category, Product, StockMovement
-from .models import Delivery, User, Role, Warehouse
-from .serializer import DashboardReportSerializer, UserSerializer, WarehouseSerializer, RoleSerializer, \
-    PinLoginSerializer
-
+from .models import StockMovement
+from .models import Delivery, Warehouse
+from .serializer import DashboardReportSerializer, WarehouseSerializer
+from rest_framework import viewsets
+from .models import Category, Unit, Product, ProductPrice
+from .serializer import (
+    CategorySerializer,
+    UnitSerializer,
+    ProductSerializer,
+    ProductPriceSerializer
+)
 
 class StockReportAPIView(APIView):
     """
@@ -179,23 +185,12 @@ class DashboardReportView(APIView):
         serializer = DashboardReportSerializer(data)
         return Response(serializer.data)
 
-
-class RoleListView(generics.ListAPIView):
-    queryset = Role.objects.all()
-    serializer_class = RoleSerializer
-    permission_classes = [IsAuthenticated]
-
-
-class UserListCreateView(generics.ListCreateAPIView):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
-    permission_classes = [IsAuthenticated]
-
-
-class UserDetailView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
-    permission_classes = [IsAuthenticated]
+#
+# class RoleListView(generics.ListAPIView):
+#     queryset = Role.objects.all()
+#     serializer_class = RoleSerializer
+#     permission_classes = [IsAuthenticated]
+#
 
 
 class WarehouseListCreateView(generics.ListCreateAPIView):
@@ -219,19 +214,21 @@ class WarehouseDetailView(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [IsAuthenticated]
 
 
+class CategoryViewSet(viewsets.ModelViewSet):
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
 
-class PinLoginView(APIView):
-    def post(self, request):
-        serializer = PinLoginSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
 
-        user = serializer.validated_data["user"]
+class UnitViewSet(viewsets.ModelViewSet):
+    queryset = Unit.objects.all()
+    serializer_class = UnitSerializer
 
-        # JWT token yaratish
-        refresh = RefreshToken.for_user(user)
-        return Response({
-            "refresh": str(refresh),
-            "access": str(refresh.access_token),
-            "user_id": str(user.id),
-            "full_name": user.full_name
-            }, status=status.HTTP_200_OK)
+
+class ProductViewSet(viewsets.ModelViewSet):
+    queryset = Product.objects.all().select_related("category", "unit")
+    serializer_class = ProductSerializer
+
+
+class ProductPriceViewSet(viewsets.ModelViewSet):
+    queryset = ProductPrice.objects.all().select_related("product")
+    serializer_class = ProductPriceSerializer

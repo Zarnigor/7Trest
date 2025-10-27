@@ -2,40 +2,6 @@ from django.db import models
 import uuid
 from django.contrib.auth.hashers import make_password, check_password
 
-# ========================
-# Users & Roles
-# ========================
-class Role(models.Model):
-    name = models.CharField(max_length=50, unique=True)
-    description = models.TextField(blank=True)
-
-    def __str__(self):
-        return self.name
-
-
-class User(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    full_name = models.CharField(max_length=150)
-    email = models.EmailField(unique=True)
-    phone = models.CharField(max_length=30, blank=True, null=True)
-    password_hash = models.CharField(max_length=255)
-    role = models.ForeignKey(Role, on_delete=models.SET_NULL, null=True)
-    is_active = models.BooleanField(default=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
-    def __str__(self):
-        return self.full_name
-
-    def set_pin(self, raw_pin: str):
-        self.pin_code_hash = make_password(raw_pin)
-        self.save(update_fields=["pin_code_hash"])
-
-    def check_pin(self, raw_pin: str) -> bool:
-        if not self.pin_code_hash:
-            return False
-        return check_password(raw_pin, self.pin_code_hash)
-
 class Warehouse(models.Model):
     WAREHOUSE_TYPES = [
         ("central", "Central"),
@@ -53,14 +19,6 @@ class Warehouse(models.Model):
     def __str__(self):
         return self.name
 
-
-class UserWarehouse(models.Model):
-    """Many-to-many: foydalanuvchi bir nechta omborda ishlashi mumkin"""
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    warehouse = models.ForeignKey(Warehouse, on_delete=models.CASCADE)
-
-    class Meta:
-        unique_together = ("user", "warehouse")
 
 
 # ========================
@@ -82,14 +40,16 @@ class Unit(models.Model):
 
 
 class Product(models.Model):
-    barcode = models.CharField(max_length=100, unique=True)
+    barcode = models.CharField(max_length=100, unique=True)  # endi string
     name = models.CharField(max_length=150)
     category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True)
     unit = models.ForeignKey(Unit, on_delete=models.SET_NULL, null=True)
+    quantity_per_unit = models.DecimalField(max_digits=10, decimal_places=2)  # masalan: 25.00 (25kg)
+    stock_quantity = models.PositiveIntegerField(default=0)  # nechta 25kg qop bor
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return self.name
+        return f"{self.name} ({self.quantity_per_unit} {self.unit})"
 
 
 class ProductPrice(models.Model):
@@ -136,7 +96,7 @@ class Delivery(models.Model):
     quantity = models.DecimalField(max_digits=12, decimal_places=2)
     total_price = models.DecimalField(max_digits=15, decimal_places=2)
     delivery_date = models.DateField()
-    responsible = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    # responsible = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="pending")
     notes = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)

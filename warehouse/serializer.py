@@ -1,15 +1,14 @@
 from rest_framework import serializers
-
 from .models import (
     Category, Unit, Product, Delivery, Order, OrderItem,
-    Warehouse
+    Warehouse, ProductPrice
 )
-
 
 class WarehouseSerializer(serializers.ModelSerializer):
     class Meta:
         model = Warehouse
         fields = "__all__"
+
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -25,27 +24,51 @@ class UnitSerializer(serializers.ModelSerializer):
 
 
 class ProductSerializer(serializers.ModelSerializer):
-    category = CategorySerializer()
-    unit = UnitSerializer()
+    price = serializers.DecimalField(max_digits=12, decimal_places=2, write_only=True)
+    start_date = serializers.DateField(write_only=True)
 
     class Meta:
         model = Product
-        fields = ["id", "barcode", "name", "category", "unit"]
+        fields = [
+            "barcode",
+            "name",
+            "category",
+            "unit",
+            "quantity_per_unit",
+            "stock_quantity",
+            "price",
+            "start_date",
+        ]
 
-#
-# class DeliverySerializer(serializers.ModelSerializer):
-#     product = ProductSerializer()
-#     warehouse = serializers.StringRelatedField()
-#     supplier = serializers.StringRelatedField()
-#     responsible = serializers.StringRelatedField()
-#
-#     class Meta:
-#         model = Delivery
-#         fields = [
-#             "id", "product", "warehouse", "supplier",
-#             "quantity", "total_price", "delivery_date",
-#             "responsible", "status"
-#         ]
+    def create(self, validated_data):
+        price = validated_data.pop('price')
+        start_date = validated_data.pop('start_date')
+        product = Product.objects.create(**validated_data)
+        ProductPrice.objects.create(product=product, price=price, start_date=start_date)
+        return product
+
+class ProductPriceSerializer(serializers.ModelSerializer):
+    product_name = serializers.CharField(source='product.name', read_only=True)
+
+    class Meta:
+        model = ProductPrice
+        fields = ["id", "product", "product_name", "price", "start_date", "end_date"]
+
+
+#-------------------------------
+class DeliverySerializer(serializers.ModelSerializer):
+    product = ProductSerializer()
+    warehouse = serializers.StringRelatedField()
+    supplier = serializers.StringRelatedField()
+    responsible = serializers.StringRelatedField()
+
+    class Meta:
+        model = Delivery
+        fields = [
+            "id", "product", "warehouse", "supplier",
+            "quantity", "total_price", "delivery_date",
+            "responsible", "status"
+        ]
 
 
 class OrderItemSerializer(serializers.ModelSerializer):
@@ -56,14 +79,14 @@ class OrderItemSerializer(serializers.ModelSerializer):
         fields = ["id", "product", "quantity", "unit_price"]
 
 
-# class OrderSerializer(serializers.ModelSerializer):
-#     customer = serializers.StringRelatedField()
-#     warehouse = serializers.StringRelatedField()
-#     items = OrderItemSerializer(many=True)
-#
-#     class Meta:
-#         model = Order
-#         fields = ["id", "customer", "warehouse", "status", "order_date", "items"]
+class OrderSerializer(serializers.ModelSerializer):
+    customer = serializers.StringRelatedField()
+    warehouse = serializers.StringRelatedField()
+    items = OrderItemSerializer(many=True)
+
+    class Meta:
+        model = Order
+        fields = ["id", "customer", "warehouse", "status", "order_date", "items"]
 
 class StockReportSerializer(serializers.Serializer):
     barcode = serializers.CharField()
@@ -75,9 +98,6 @@ class StockReportSerializer(serializers.Serializer):
     outbound_val = serializers.DecimalField(max_digits=15, decimal_places=2)
     balance_qty = serializers.DecimalField(max_digits=12, decimal_places=2)
     balance_val = serializers.DecimalField(max_digits=15, decimal_places=2)
-
-
-from rest_framework import serializers
 
 
 class VPutyReportSerializer(serializers.Serializer):
@@ -104,61 +124,3 @@ class DashboardReportSerializer(serializers.Serializer):
     v_puti = VPutyReportSerializer()
     dostavlen = DostavlenReportSerializer()
     na_sklade = NaSkladeReportSerializer()
-
-from rest_framework import serializers
-from .models import User, Role, Warehouse, UserWarehouse
-
-
-class RoleSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Role
-        fields = ["id", "name", "description"]
-
-
-class UserSerializer(serializers.ModelSerializer):
-    role = RoleSerializer(read_only=True)
-    role_id = serializers.PrimaryKeyRelatedField(
-        queryset=Role.objects.all(), source="role", write_only=True
-    )
-    warehouses = serializers.PrimaryKeyRelatedField(
-        queryset=Warehouse.objects.all(), many=True, write_only=True
-    )
-    warehouse_list = WarehouseSerializer(source="userwarehouse_set", many=True, read_only=True)
-
-    class Meta:
-        model = User
-        fields = [
-            "id", "full_name", "email", "phone", "password_hash",
-            "role", "role_id", "warehouses", "warehouse_list",
-            "is_active", "created_at"
-        ]
-        extra_kwargs = {"password_hash": {"write_only": True}}
-
-    def create(self, validated_data):
-        warehouses = validated_data.pop("warehouses", [])
-        user = User.objects.create(**validated_data)
-        for wh in warehouses:
-            UserWarehouse.objects.create(user=user, warehouse=wh)
-        return user
-
-from rest_framework import serializers
-from .models import User
-
-class PinLoginSerializer(serializers.Serializer):
-    email = serializers.EmailField()
-    pin = serializers.CharField(min_length=4, max_length=6)
-
-    def validate(self, attrs):
-        email = attrs.get("email")
-        pin = attrs.get("pin")
-
-        try:
-            user = User.objects.get(email=email, is_active=True)
-        except User.DoesNotExist:
-            raise serializers.ValidationError("User not found.")
-
-        if not user.check_pin(pin):
-            raise serializers.ValidationError("Invalid PIN.")
-
-        attrs["user"] = user
-        return attrs
