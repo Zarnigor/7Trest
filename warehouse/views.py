@@ -1,20 +1,12 @@
 from django.db.models import Sum
-from rest_framework import generics, status
+from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework_simplejwt.tokens import RefreshToken
 from .models import StockMovement
 from .models import Delivery, Warehouse
 from .serializer import DashboardReportSerializer, WarehouseSerializer
-from rest_framework import viewsets
-from .models import Category, Unit, Product, ProductPrice
-from .serializer import (
-    CategorySerializer,
-    UnitSerializer,
-    ProductSerializer,
-    ProductPriceSerializer
-)
+from product.models import Product, Category
 
 class StockReportAPIView(APIView):
     """
@@ -214,21 +206,3 @@ class WarehouseDetailView(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [IsAuthenticated]
 
 
-class CategoryViewSet(viewsets.ModelViewSet):
-    queryset = Category.objects.all()
-    serializer_class = CategorySerializer
-
-
-class UnitViewSet(viewsets.ModelViewSet):
-    queryset = Unit.objects.all()
-    serializer_class = UnitSerializer
-
-
-class ProductViewSet(viewsets.ModelViewSet):
-    queryset = Product.objects.all().select_related("category", "unit")
-    serializer_class = ProductSerializer
-
-
-class ProductPriceViewSet(viewsets.ModelViewSet):
-    queryset = ProductPrice.objects.all().select_related("product")
-    serializer_class = ProductPriceSerializer
